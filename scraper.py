@@ -212,6 +212,13 @@ def crawl_page(url):
     for script in soup.find_all('script'):
         if script.string and ('wnd.trackerConfig' in script.string or 'events.webnode.com' in script.string):
             script.decompose()
+            
+    cookie_bar = soup.find('section', id='cookiebar')
+    if cookie_bar:
+        cookie_bar.decompose()
+        
+    for cbr in soup.find_all('span', class_='sf-cbr'):
+        cbr.decompose()
         
     with open(full_outpath, 'w', encoding='utf-8') as f:
         f.write(str(soup))
