@@ -220,6 +220,42 @@ def crawl_page(url):
     for cbr in soup.find_all('span', class_='sf-cbr'):
         cbr.decompose()
         
+    for node in list(soup.find_all(string=True)):
+        parent = node.parent
+        if not parent or parent.name == 'a':
+            continue
+            
+        s = str(node)
+        if 'masaze.restart.kladno@gmail.com' in s:
+            new_tag = soup.new_tag('a', href="mailto:masaze.restart.kladno@gmail.com")
+            new_tag.string = "masaze.restart.kladno@gmail.com"
+            
+            if s.strip() == "e-mail: masaze.restart.kladno@gmail.com":
+                parent.clear()
+                parent.append("e-mail: ")
+                parent.append(new_tag)
+            elif s.strip() == "masaze.restart.kladno@gmail.com":
+                parent.clear()
+                parent.append(new_tag)
+                
+        elif s.strip() == "https://linktr.ee/restartmasaze":
+            new_tag = soup.new_tag('a', href="https://linktr.ee/restartmasaze", target="_blank", rel="noopener noreferrer")
+            new_tag.string = s.strip()
+            parent.clear()
+            parent.append(new_tag)
+            
+        elif s.strip() == "/restartmasazekladno":
+            new_tag = soup.new_tag('a', href="https://www.facebook.com/restartmasazekladno", target="_blank", rel="noopener noreferrer")
+            new_tag.string = s.strip()
+            parent.clear()
+            parent.append(new_tag)
+            
+        elif s.strip() == "/restart_masaze_kladno":
+            new_tag = soup.new_tag('a', href="https://www.instagram.com/restart_masaze_kladno/", target="_blank", rel="noopener noreferrer")
+            new_tag.string = s.strip()
+            parent.clear()
+            parent.append(new_tag)
+            
     with open(full_outpath, 'w', encoding='utf-8') as f:
         f.write(str(soup))
         
