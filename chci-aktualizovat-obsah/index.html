@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aktualizace obsahu :: Restartmasáže</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00acc1;
+            --primary-hover: #00838f;
+            --bg-gradient: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            --panel-bg: rgba(255, 255, 255, 0.03);
+            --panel-border: rgba(255, 255, 255, 0.08);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            overflow: hidden;
+        }
+
+        .glass-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--panel-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .logo-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+            display: inline-block;
+            animation: pulse 3s infinite alternate;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(0, 172, 193, 0.2)); }
+            100% { transform: scale(1.05); filter: drop-shadow(0 0 20px rgba(0, 172, 193, 0.6)); }
+        }
+
+        h1 {
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+            background: linear-gradient(to right, #fff, var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .subtitle {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 32px;
+            line-height: 1.5;
+        }
+
+        /* Big Beautiful Syncer Button */
+        .sync-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 140px;
+            height: 140px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 0 0 0 rgba(0, 172, 193, 0.4);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin: 0 auto 32px auto;
+            position: relative;
+            outline: none;
+        }
+
+        .sync-btn:hover {
+            background: var(--primary-hover);
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0, 172, 193, 0.6);
+        }
+
+        .sync-btn:active {
+            transform: scale(0.95);
+        }
+
+        .sync-btn.syncing {
+            animation: pulse-active 1.5s infinite;
+            pointer-events: none;
+            background: #334155;
+        }
+
+        @keyframes pulse-active {
+            0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.2); }
+            70% { box-shadow: 0 0 0 20px rgba(255, 255, 255, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+        }
+
+        .sync-icon {
+            width: 32px;
+            height: 32px;
+            fill: #fff;
+            transition: transform 0.8s ease;
+        }
+
+        .syncing .sync-icon {
+            animation: spin 1.2s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Status logger */
+        .status-box {
+            min-height: 60px;
+            margin-bottom: 20px;
+        }
+
+        .status-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 6px;
+        }
+
+        .status-subtext {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        /* Setup Screen / Modal */
+        .setup-container {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #0f172a;
+            border-radius: 24px;
+            padding: 40px 30px;
+            flex-direction: column;
+            justify-content: center;
+            align-items: stretch;
+            z-index: 10;
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
+
+        .setup-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 12px;
+        }
+
+        .setup-desc {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 24px;
+            line-height: 1.6;
+            text-align: left;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        input[type="password"] {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 12px 16px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+            transition: border 0.3s;
+        }
+
+        input[type="password"]:focus {
+            border-color: var(--primary);
+        }
+
+        .save-btn {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+            width: 100%;
+        }
+
+        .save-btn:hover {
+            background: var(--primary-hover);
+        }
+
+        /* Setup trigger icon */
+        .settings-trigger {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            cursor: pointer;
+            opacity: 0.4;
+            transition: opacity 0.3s;
+            background: none;
+            border: none;
+            padding: 4px;
+        }
+
+        .settings-trigger:hover {
+            opacity: 1;
+        }
+
+        .settings-trigger svg {
+            width: 20px;
+            height: 20px;
+            fill: #fff;
+        }
+
+        /* Close button inside setup */
+        .close-setup {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            margin-top: 16px;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .close-setup:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glass-panel">
+        <!-- Nastavení / Ozubené kolečko -->
+        <button class="settings-trigger" id="openSettingsBtn" title="Nastavení klíče">
+            <svg viewBox="0 0 24 24">
+                <path d="M19.43 12.98c.04-.32.07-.64.07-.98s-.03-.66-.07-.98l2.11-1.65c.19-.15.24-.42.12-.64l-2-3.46c-.12-.22-.39-.3-.61-.22l-2.49 1c-.52-.4-1.08-.73-1.69-.98l-.38-2.65C14.46 2.18 14.25 2 14 2h-4c-.25 0-.46.18-.49.42l-.38 2.65c-.61.25-1.17.59-1.69.98l-2.49-1c-.23-.09-.49 0-.61.22l-2 3.46c-.13.22-.07.49.12.64l2.11 1.65c-.04.32-.07.65-.07.98s.03.66.07.98l-2.11 1.65c-.19.15-.24.42-.12.64l2 3.46c.12.22.39.3.61.22l2.49-1c.52.4 1.08.73 1.69.98l.38 2.65c.03.24.24.42.49.42h4c.25 0 .46-.18.49-.42l.38-2.65c.61-.25 1.17-.59 1.69-.98l2.49 1c.23.09.49 0 .61-.22l2-3.46c.12-.22.07-.49-.12-.64l-2.11-1.65zM12 15.5c-1.93 0-3-1.07-3-3.5s1.07-3.5 3-3.5 3 1.07 3 3.5-1.07 3.5-3 3.5z"/>
+            </svg>
+        </button>
+
+        <span class="logo-icon">✨</span>
+        <h1>Restartmasáže.cz</h1>
+        <p class="subtitle">Jednoduchá aktualizace obsahu z Webnode</p>
+
+        <!-- Hlavní tlačítko spuštění -->
+        <button class="sync-btn" id="syncBtn">
+            <svg class="sync-icon" id="syncIcon" viewBox="0 0 24 24">
+                <path d="M19 8l-4 4h3c0 3.31-2.69 6-6 6-1.01 0-1.97-.25-2.8-.7l-1.46 1.46C8.97 19.54 10.43 20 12 20c4.42 0 8-3.58 8-8h3l-4-4zM6 12c0-3.31 2.69-6 6-6 1.01 0 1.97.25 2.8.7l1.46-1.46C15.03 4.46 13.57 4 12 4c-4.42 0-8 3.58-8 8H1l4 4 4-4H6z"/>
+            </svg>
+            <span id="btnText">Aktualizovat</span>
+        </button>
+
+        <!-- Stavový box -->
+        <div class="status-box">
+            <div class="status-text" id="statusTitle">Připraveno</div>
+            <div class="status-subtext" id="statusDesc">Klikněte pro synchronizaci obsahu.</div>
+        </div>
+
+        <!-- Setup okno (token konfigurace) -->
+        <div class="setup-container" id="setupContainer">
+            <div class="setup-title">Nastavení přístupu</div>
+            <div class="setup-desc">
+                Aby tlačítko mohlo spustit synchronizaci na GitHubu, je potřeba vložit přístupový token. Ten zůstane bezpečně uložen **pouze v tomto prohlížeči**.
+            </div>
+
+            <div class="input-group">
+                <label class="input-label" for="tokenInput">GitHub Personal Access Token (classic)</label>
+                <input type="password" id="tokenInput" placeholder="ghp_xxxxxxxxxxxx">
+            </div>
+
+            <button class="save-btn" id="saveTokenBtn">Uložit klíč</button>
+            <button class="close-setup" id="closeSettingsBtn">Zavřít</button>
+        </div>
+    </div>
+
+    <script>
+        const owner = "paveljasek";
+        const repo = "restartmasaze";
+        const workflowId = "scrape.yml";
+
+        const syncBtn = document.getElementById('syncBtn');
+        const syncIcon = document.getElementById('syncIcon');
+        const btnText = document.getElementById('btnText');
+        const statusTitle = document.getElementById('statusTitle');
+        const statusDesc = document.getElementById('statusDesc');
+
+        const setupContainer = document.getElementById('setupContainer');
+        const openSettingsBtn = document.getElementById('openSettingsBtn');
+        const closeSettingsBtn = document.getElementById('closeSettingsBtn');
+        const saveTokenBtn = document.getElementById('saveTokenBtn');
+        const tokenInput = document.getElementById('tokenInput');
+
+        // Načtení tokenu z localStorage
+        let githubToken = localStorage.getItem('github_sync_token') || '';
+
+        // Kontrola, zda je token nastaven
+        function checkToken() {
+            if (!githubToken) {
+                setupContainer.style.display = 'flex';
+            }
+        }
+
+        // Otevření nastavení
+        openSettingsBtn.addEventListener('click', () => {
+            tokenInput.value = githubToken;
+            setupContainer.style.display = 'flex';
+        });
+
+        // Zavření nastavení
+        closeSettingsBtn.addEventListener('click', () => {
+            setupContainer.style.display = 'none';
+        });
+
+        // Uložení tokenu
+        saveTokenBtn.addEventListener('click', () => {
+            const val = tokenInput.value.trim();
+            if (val) {
+                githubToken = val;
+                localStorage.setItem('github_sync_token', val);
+                setupContainer.style.display = 'none';
+                updateStatus('Klíč byl úspěšně uložen!', 'Nyní můžete spustit synchronizaci.');
+            } else {
+                alert('Prosím zadejte platný token.');
+            }
+        });
+
+        function updateStatus(title, desc) {
+            statusTitle.textContent = title;
+            statusDesc.textContent = desc;
+        }
+
+        // Kliknutí na tlačítko aktualizace
+        syncBtn.addEventListener('click', async () => {
+            if (!githubToken) {
+                checkToken();
+                return;
+            }
+
+            // UI stav stahování
+            syncBtn.classList.add('syncing');
+            btnText.textContent = 'Pracuji...';
+            updateStatus('Odesílám požadavek...', 'Spouštím synchronizační server...');
+
+            try {
+                // Volání GitHub Actions API pro spuštění workflow dispatche
+                const response = await fetch(`https://api.github.com/repos/${owner}/${repo}/actions/workflows/${workflowId}/dispatches`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${githubToken}`,
+                        'Accept': 'application/vnd.github+json',
+                        'X-GitHub-Api-Version': '2022-11-28'
+                    },
+                    body: JSON.stringify({
+                        ref: 'main'
+                    })
+                });
+
+                if (response.status === 204) {
+                    // Úspěch (GitHub API vrací 204)
+                    updateStatus('Synchronizace zahájena! 🎉', 'Během 1 minuty se nové ceny a texty projeví na webu.');
+                    btnText.textContent = 'Hotovo';
+                    
+                    // Vrátit tlačítko do normálu po 5 sekundách
+                    setTimeout(() => {
+                        syncBtn.classList.remove('syncing');
+                        btnText.textContent = 'Aktualizovat';
+                        updateStatus('Připraveno', 'Můžete provést další aktualizaci.');
+                    }, 8000);
+                } else {
+                    // Chyba (např. 401, 404)
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.message || `Chyba serveru (status ${response.status})`);
+                }
+
+            } catch (error) {
+                console.error(error);
+                syncBtn.classList.remove('syncing');
+                btnText.textContent = 'Chyba';
+                updateStatus('Spuštění selhalo ❌', error.message || 'Zkontrolujte správnost přístupového klíče v nastavení.');
+            }
+        });
+
+        // Při načtení zkontrolujeme přítomnost tokenu
+        window.onload = () => {
+            checkToken();
+        };
+    </script>
+</body>
+</html>
