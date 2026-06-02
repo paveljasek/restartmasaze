@@ -209,9 +209,32 @@ def crawl_page(url):
     if generator_meta:
         generator_meta.decompose()
         
+    # 1. Odstranění preconnect linků směřujících na Webnode/Cloudfront CDN
+    for link in soup.find_all('link'):
+        href = link.get('href', '')
+        rel = link.get('rel', [])
+        if isinstance(rel, str):
+            rel = [rel]
+        if any(r in rel for r in ['preconnect', 'dns-prefetch']) and ('cloudfront.net' in href or 'webnode.cz' in href):
+            link.decompose()
+
+    # 2. Analýza skriptů, stažení container-query-polyfill lokálně a vyčištění trackerů
     for script in soup.find_all('script'):
-        if script.string and ('wnd.trackerConfig' in script.string or 'events.webnode.com' in script.string):
-            script.decompose()
+        if script.string:
+            # Odstranění Webnode měřících kódů a trackerů
+            if 'wnd.trackerConfig' in script.string or 'events.webnode.com' in script.string:
+                script.decompose()
+                continue
+            
+            # Stažení container-query-polyfill a nahrazení externího odkazu lokálním
+            if 'container-query-polyfill.modern.js' in script.string:
+                polyfill_url = "https://duyn491kcolsw.cloudfront.net/client/js.polyfill/container-query-polyfill.modern.js"
+                try:
+                    local_path = download_asset(polyfill_url)
+                    rel_path = ("../" * depth) + local_path
+                    script.string = script.string.replace(polyfill_url, rel_path)
+                except Exception as e:
+                    print(f"Error localizing polyfill: {e}")
             
     cookie_bar = soup.find('section', id='cookiebar')
     if cookie_bar:
